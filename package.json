@@ -1,0 +1,13 @@
+{
+  "name": "dm-task-distribution-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram bot for distributing discrete mathematics practice tasks",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/bot.js && node --check src/distribution.js && node --check src/bridge-client.js",
+    "test": "node --test"
+  }
+}
