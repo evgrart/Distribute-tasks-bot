@@ -447,6 +447,8 @@ Privacy Mode у бота можно оставить включённым: об�
 
 После каждого изменения кода создавайте новую версию существующего deployment через `Deploy → Manage deployments → Edit → New version`. Сам адрес webhook при этом остаётся прежним.
 
+Webhook возвращает `HtmlOutput`, а не `ContentService`: Content Service Apps Script намеренно отвечает через HTTP-redirect `302`, который Telegram не считает успешным webhook-ответом.
+
 ### 14.5. Установка webhook и получение ID
 
 1. Перезагрузите Google-таблицу, чтобы появилось подменю `DM система → Telegram-бот`.
@@ -500,6 +502,12 @@ TARGET_CHAT_IDS = {"1":"-1001111111111","2":"-1002222222222","3":"-1003333333333
 5. ваш ID входит в `ALLOWED_USER_IDS`;
 6. ключи `1`, `2`, `3` присутствуют в `TARGET_CHAT_IDS`;
 7. ID четырёх Google-таблиц заполнены в объекте `DM`.
+
+Если `getWebhookInfo` показывает `Wrong response from the webhook: 302 Found`, убедитесь, что:
+
+1. в Apps Script вставлена текущая версия `TelegramBot.gs`, где `tg_httpText_` использует `HtmlService`;
+2. deployment обновлён через `New version`;
+3. после обновления повторно вызвана функция `telegramSetWebhook`.
 
 ## 16. Проверка алгоритма локально
 

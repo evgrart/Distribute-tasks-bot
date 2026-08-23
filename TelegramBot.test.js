@@ -19,11 +19,21 @@ const syntaxSource = systemPath
   ? `${fs.readFileSync(systemPath, 'utf8')}\n${source}`
   : source;
 new vm.Script(syntaxSource, { filename: systemPath ? 'CombinedAppsScript.gs' : 'TelegramBot.gs' });
-const context = { console };
+const context = {
+  console,
+  HtmlService: {
+    createHtmlOutput(value) {
+      return { body: String(value) };
+    }
+  }
+};
 vm.createContext(context);
 vm.runInContext(source, context, { filename: 'TelegramBot.gs' });
 
 const calculate = context.tg_calculateDistribution_;
+
+// Webhook не должен использовать ContentService: он возвращает Telegram код 302.
+assert.strictEqual(context.tg_httpText_('ok').body, 'ok');
 
 function task(number, covered = false) {
   return { key: `t${number}`, label: String(number), covered };

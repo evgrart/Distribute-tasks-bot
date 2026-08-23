@@ -1398,8 +1398,9 @@ function tg_uniqueStrings_(values) {
 }
 
 function tg_httpText_(text) {
-  return ContentService.createTextOutput(String(text))
-    .setMimeType(ContentService.MimeType.TEXT);
+  // ContentService отвечает через 302-redirect на script.googleusercontent.com.
+  // Telegram webhook принимает только 2xx, поэтому возвращаем HtmlOutput.
+  return HtmlService.createHtmlOutput(String(text));
 }
 
 function tg_toast_(message) {
