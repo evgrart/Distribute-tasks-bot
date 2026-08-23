@@ -7,9 +7,18 @@ const path = require('path');
 const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'TelegramBot.gs'), 'utf8');
-const systemSource = fs.readFileSync(path.join(__dirname, '..', 'Sheet', 'Code.gs'), 'utf8');
-// Apps Script объединяет все .gs-файлы в один проект — проверяем общий синтаксис.
-new vm.Script(`${systemSource}\n${source}`, { filename: 'CombinedAppsScript.gs' });
+const systemCandidates = [
+  process.env.DM_CODE_GS,
+  path.join(__dirname, '..', 'Advanced-Discrete-Math-2026', 'Sheet', 'Code.gs')
+].filter(Boolean);
+const systemPath = systemCandidates.find(candidate => fs.existsSync(candidate));
+
+// Apps Script объединяет все .gs-файлы в один проект. Если основной
+// репозиторий лежит рядом (или в CI задан DM_CODE_GS), дополнительно проверяем общий синтаксис.
+const syntaxSource = systemPath
+  ? `${fs.readFileSync(systemPath, 'utf8')}\n${source}`
+  : source;
+new vm.Script(syntaxSource, { filename: systemPath ? 'CombinedAppsScript.gs' : 'TelegramBot.gs' });
 const context = { console };
 vm.createContext(context);
 vm.runInContext(source, context, { filename: 'TelegramBot.gs' });
