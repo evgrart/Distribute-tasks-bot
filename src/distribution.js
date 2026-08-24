@@ -112,24 +112,6 @@ export function formatDistribution(problem, result, maxLength = 3900) {
   if (noCandidate.length) lines.push(`Без подходящего кандидата: ${escapeHtml(noCandidate.join(', '))}`);
   if (constrained.length) lines.push(`Не хватило свободных выходов: ${escapeHtml(constrained.join(', '))}`);
 
-  const diagnosticLines = [];
-  pushDiagnostic(diagnosticLines, 'Назначены без TG',
-    result.assignments.filter(item => !item.telegram).map(item => item.name));
-  pushDiagnostic(diagnosticLines, 'Не отмечены присутствующими', problem.diagnostics.absent);
-  pushDiagnostic(diagnosticLines, 'Уже имеют два выхода', problem.diagnostics.full);
-  pushDiagnostic(diagnosticLines, 'Прод = Нет', problem.diagnostics.inactive);
-  pushDiagnostic(diagnosticLines, 'Не найдены в «Общий»', problem.diagnostics.missingCentral);
-  pushDiagnostic(diagnosticLines, 'Числятся у другого практика', problem.diagnostics.wrongPractitioner);
-  if (problem.diagnostics.missingPracticeSheets.length) {
-    diagnosticLines.push(
-      `Нет листов практик: ${problem.diagnostics.missingPracticeSheets.join(', ')} ` +
-      '(семестровый приоритет посчитан по доступным листам)'
-    );
-  }
-  if (diagnosticLines.length) {
-    lines.push('', '<b>Проверка данных</b>');
-    diagnosticLines.forEach(line => lines.push(escapeHtml(line)));
-  }
   return limitMessage(lines, maxLength);
 }
 
@@ -240,12 +222,6 @@ function compareTasks(left, right) {
 function tasksByKeys(problem, keys) {
   const wanted = new Set(keys);
   return problem.tasks.filter(task => wanted.has(task.key)).sort(compareTasks).map(task => task.label);
-}
-
-function pushDiagnostic(target, title, values = []) {
-  const unique = [...new Map(values.map(value => [String(value).trim().toLowerCase(), String(value).trim()]))
-    .values()].filter(Boolean);
-  if (unique.length) target.push(`${title}: ${unique.join(', ')}`);
 }
 
 function limitMessage(lines, maximum) {

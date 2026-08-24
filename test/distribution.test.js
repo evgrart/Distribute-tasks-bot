@@ -122,6 +122,21 @@ test('fingerprint and formatted message are stable', () => {
   assert.match(formatDistribution(input, result), /Практика 1/);
 });
 
+test('formatted message omits data diagnostics', () => {
+  const input = problem([task(1)], [student('Студент', [1])]);
+  input.diagnostics = {
+    missingCentral: ['Не найден'],
+    wrongPractitioner: ['Другая группа'],
+    inactive: ['Неактивный'],
+    absent: ['Отсутствует'],
+    full: ['Два выхода'],
+    missingPracticeSheets: [2]
+  };
+  const message = formatDistribution(input, calculateDistribution(input, 'no-diagnostics'));
+  assert.doesNotMatch(message, /Проверка данных|Назначены без TG|Не отмечены присутствующими|Уже имеют два выхода/);
+  assert.match(message, /Назначено сейчас/);
+});
+
 test('300 random graphs reach brute-force maximum coverage', () => {
   let state = 0x51f15e;
   const random = () => {
