@@ -71,18 +71,18 @@ test('uses first slots before a second slot', () => {
   assert.equal(result.assignments.length, 2);
 });
 
-test('usually but not always prefers the student with fewer semester solutions', () => {
+test('usually but not always prefers the student with more semester solutions', () => {
   const input = problem([task(1)], [
     student('Мало', [1], { semesterSolved: 4 }), student('Много', [1], { semesterSolved: 24 })
   ]);
-  let lessSolvedWins = 0;
+  let moreSolvedWins = 0;
   const trials = 2000;
   for (let index = 0; index < trials; index++) {
-    if (calculateDistribution(input, `priority-${index}`).assignments[0].name === 'Мало') {
-      lessSolvedWins++;
+    if (calculateDistribution(input, `priority-${index}`).assignments[0].name === 'Много') {
+      moreSolvedWins++;
     }
   }
-  const rate = lessSolvedWins / trials;
+  const rate = moreSolvedWins / trials;
   assert.ok(rate > 0.62 && rate < 0.76, `unexpected weighted-random rate: ${rate}`);
 });
 

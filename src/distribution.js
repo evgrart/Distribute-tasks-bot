@@ -207,11 +207,11 @@ function seededInt(seed, key, modulo) {
 function weightedPriorityCost(seed, student, power) {
   const solved = Math.max(0, Number(student.semesterSolved) || 0);
   // Экспоненциальная гонка: шанс победить пропорционален
-  // 1 / (1 + solved)^power. При power=0 получается чистый рандом,
-  // при 0.5 слабые получают заметный, но не абсолютный приоритет.
+  // (1 + solved)^power. При power=0 получается чистый рандом,
+  // при 0.5 решившие больше получают заметный, но не абсолютный приоритет.
   const discrete = seededInt(seed, `student-priority|${student.id}`, 1000000);
   const uniform = (discrete + 0.5) / 1000000;
-  const score = -Math.log(uniform) * Math.pow(1 + solved, power);
+  const score = -Math.log(uniform) / Math.pow(1 + solved, power);
   return Math.min(1000000000, Math.round(score * 10000));
 }
 
