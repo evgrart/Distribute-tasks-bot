@@ -150,21 +150,23 @@ function bridge_readDistributionProblem_(practitionerNo, practiceNo) {
   const fileId = DM.plusFileIds[practitioner];
   if (!fileId) throw new Error('Не указан ID файла практика ' + practitioner + '.');
   const plusFile = SpreadsheetApp.openById(fileId);
-  const layout = plusLayout_(practitioner);
+  const layout = plusLayout_(practitioner, practiceNo);
   const semesterSolved = {};
   const missingPracticeSheets = [];
   let selectedSnapshot = null;
 
   for (let number = 1; number <= DM.practiceCount; number++) {
+    const practiceLayout = plusLayout_(practitioner, number);
     const sheet = plusFile.getSheetByName('Практика ' + number);
     if (!sheet) {
       missingPracticeSheets.push(number);
       continue;
     }
+    assertPracticeTaskLayout_(sheet, practiceLayout, number);
     const block = sheet.getRange(
-      DM.plusHeaderRow, 1, DM.studentsPerGroup + 1, layout.taskLastCol
+      DM.plusHeaderRow, 1, DM.studentsPerGroup + 1, practiceLayout.taskLastCol
     ).getDisplayValues();
-    const headers = block[0].slice(layout.taskFirstCol - 1, layout.taskLastCol);
+    const headers = block[0].slice(practiceLayout.taskFirstCol - 1, practiceLayout.taskLastCol);
     const rows = block.slice(1);
     const seenNames = {};
     const enabledOffsets = [];
@@ -179,7 +181,7 @@ function bridge_readDistributionProblem_(practitionerNo, practiceNo) {
       seenNames[key] = true;
       let solved = 0;
       enabledOffsets.forEach(function(offset) {
-        const marker = bridge_marker_(row[layout.taskFirstCol - 1 + offset]);
+        const marker = bridge_marker_(row[practiceLayout.taskFirstCol - 1 + offset]);
         if (marker === '+' || marker === '1') solved++;
       });
       semesterSolved[key] = (semesterSolved[key] || 0) + solved;
